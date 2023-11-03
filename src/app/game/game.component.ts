@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Game } from 'src/models/game';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
-// import { AngularFirestore } from '@angular/fire/firestore';
+import { query, orderBy, limit, where, Firestore, collection, doc, collectionData, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Observable, elementAt } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -14,16 +15,72 @@ export class GameComponent implements OnInit {
   currentCard: string = '';
   game: Game;
 
-  constructor(public dialog: MatDialog) { }
+  items$;
+  items;
+  firestore: Firestore = inject(Firestore);
+
+  constructor(public dialog: MatDialog) {
+    this.items$ = collectionData(this.getGamesRef());
+    this.items = this.items$.subscribe((list) => {
+      list.forEach(element => {
+        console.log(element);
+      });
+    })
+    this.items.unsubscribe();
+  }
+
+  // subNotesList() {
+  //   const q = query(this.getGamesRef(), limit(100));
+  //   return onSnapshot(q, (list) => {
+  //     this.normalNotes = [];
+  //     list.forEach((element) => {
+  //       this.normalNotes.push(this.setNoteObject(element.data(), element.id));
+  //     });
+  //     list.docChanges().forEach((change) => {
+  //       if (change.type === "added") {
+  //         console.log("New note: ", change.doc.data());
+  //       }
+  //       if (change.type === "modified") {
+  //         console.log("Modified note: ", change.doc.data());
+  //       }
+  //       if (change.type === "removed") {
+  //         console.log("Removed note: ", change.doc.data());
+  //       }
+  //     });
+  //   });
+  // }
+
+
+  getGamesRef() {
+    return collection(this.firestore, 'games');
+  }
+
+  getSingleDocRef(colId: string, docId: string) {
+    return doc(collection(this.firestore, colId), docId)
+  }
+
 
   ngOnInit(): void {
     this.newGame();
   }
 
+  async addGame(item: {}) {
+    await addDoc(this.getGamesRef(), item).catch(
+      (err) => { console.error(err) }
+    ).then(
+      (docRef) => { console.log("Document written on ID:", docRef) }
+    )
+  }
 
   newGame() {
     this.game = new Game();
-    console.log(this.game);
+    this.items$.subscribe((list) => {
+      list.forEach(element => {
+        console.log(element);
+      })
+    })
+      .add(this.game.toJson());
+    this.addGame(this.game.toJson());
   }
 
   takeCard() {
