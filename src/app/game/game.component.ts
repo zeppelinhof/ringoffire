@@ -1,9 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Game } from 'src/models/game';
+import { GameService } from './game-service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { query, orderBy, limit, where, Firestore, collection, doc, collectionData, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
 import { Observable, elementAt } from 'rxjs';
+<<<<<<< Updated upstream
+import { GameService } from './game-service';
+=======
+import { ActivatedRoute } from '@angular/router';
+>>>>>>> Stashed changes
 
 @Component({
   selector: 'app-game',
@@ -19,8 +25,13 @@ export class GameComponent implements OnInit {
   items;
   firestore: Firestore = inject(Firestore);
 
-  constructor(public dialog: MatDialog) {
+  constructor(public dialog: MatDialog, public gameservice: GameService) {
+<<<<<<< Updated upstream
+    debugger
     this.items$ = collectionData(this.getGamesRef());
+=======
+    this.items$ = collectionData(gameservice.getGamesRef());
+>>>>>>> Stashed changes
     this.items = this.items$.subscribe((list) => {
       list.forEach(element => {
         console.log(element);
@@ -29,58 +40,18 @@ export class GameComponent implements OnInit {
     this.items.unsubscribe();
   }
 
-  // subNotesList() {
-  //   const q = query(this.getGamesRef(), limit(100));
-  //   return onSnapshot(q, (list) => {
-  //     this.normalNotes = [];
-  //     list.forEach((element) => {
-  //       this.normalNotes.push(this.setNoteObject(element.data(), element.id));
-  //     });
-  //     list.docChanges().forEach((change) => {
-  //       if (change.type === "added") {
-  //         console.log("New note: ", change.doc.data());
-  //       }
-  //       if (change.type === "modified") {
-  //         console.log("Modified note: ", change.doc.data());
-  //       }
-  //       if (change.type === "removed") {
-  //         console.log("Removed note: ", change.doc.data());
-  //       }
-  //     });
-  //   });
-  // }
-
-
-  getGamesRef() {
-    return collection(this.firestore, 'games');
-  }
-
-  getSingleDocRef(colId: string, docId: string) {
-    return doc(collection(this.firestore, colId), docId)
-  }
-
-
   ngOnInit(): void {
+    debugger
     this.newGame();
+    // this.route.params.subscribe((params) => {
+    //   console.log(params);
+    // });
   }
 
-  async addGame(item: {}) {
-    await addDoc(this.getGamesRef(), item).catch(
-      (err) => { console.error(err) }
-    ).then(
-      (docRef) => { console.log("Document written on ID:", docRef) }
-    )
-  }
-
+  
   newGame() {
     this.game = new Game();
-    this.items$.subscribe((list) => {
-      list.forEach(element => {
-        console.log(element);
-      })
-    })
-      .add(this.game.toJson());
-    this.addGame(this.game.toJson());
+
   }
 
   takeCard() {
