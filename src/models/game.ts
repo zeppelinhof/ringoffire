@@ -1,13 +1,14 @@
+import { GameComponent } from "src/app/game/game.component";
+
 export class Game {
     public id: string;
     public players: string[] = [];
     public stack: string[] = [];
     public playedCards: string[] = [];
     public currentPlayer: number = 0;
-    public currentGameNumber: number;
 
 
-    constructor(gameNumber) {
+    constructor() {
         console.log('Game Constructor aus game.ts');
         for (let i = 0; i < 10; i++) {
             this.stack.push('blue_' + i + '_large.png');
@@ -16,7 +17,6 @@ export class Game {
             this.stack.push('yellow_' + i + '_large.png');
         }
         shuffle(this.stack);
-        this.currentGameNumber = gameNumber;
     }
 
     toJson() {

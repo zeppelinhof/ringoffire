@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { query, orderBy, limit, where, Firestore, collection, doc, collectionData, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
 import { Observable, elementAt } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-game',
@@ -16,29 +17,26 @@ export class GameComponent implements OnInit {
   game: Game;
   normalGames = [];
   unsubGames;
-  gameNumber = 0;
+  currentGameId:string;
 
   // items$;
   // items;
 
   firestore: Firestore = inject(Firestore);
 
-  constructor(public dialog: MatDialog) {
+  constructor(public dialog: MatDialog, private route: ActivatedRoute) {
     // this.items$ = collectionData(this.getGamesRef());
     // this.items = this.items$.subscribe((list) => {
     //   list.forEach(element => {
     //     console.log(element);
     //   });
     // })
-    // this.items.unsubscribe();
-    console.log('Constructor game.component.ts');
+    // this.items.unsubscribe();    
     this.unsubGames = this.subGameList();
   }
 
   async updateGame(element) {
-    console.log('updateGame wird jetzt aufgerufen');    
-    console.log('normalGames in updateGame:', this.normalGames);
-    let docRef = this.getSingleDocRef("games", this.normalGames[this.gameNumber]['id']);
+    let docRef = this.getSingleDocRef("games", this.currentGameId);
     debugger
     if (true) {
       await updateDoc(docRef, this.getCleanJson(element)).catch(
@@ -54,7 +52,6 @@ export class GameComponent implements OnInit {
 
 
   getCleanJson(game: Game): {} {
-    console.log('getCleanJson wird jetzt aufgerufen');
     return {
       currentPlayer: game.currentPlayer,
       playedCards: game.playedCards,
@@ -69,9 +66,7 @@ export class GameComponent implements OnInit {
    * @param colId 
    */
   async addGame(item) {
-    console.log('getCleanJson wird jetzt aufgerufen');
     await this.subGameList();
-    console.log('... und this.game.toJson() in games speichern');
     await addDoc(this.getGamesRef(), item).catch(
       (err) => { console.log(err) }
     ).then(
@@ -89,17 +84,10 @@ export class GameComponent implements OnInit {
    * @returns gesamte Collection games fotografieren und 
    */
   async subGameList() {
-    console.log('subGameList');
     const q = query(this.getGamesRef(), limit(100));
-    console.log('Query q:', q);
-    const snappy = await onSnapshot(q, (list) => {
-      console.log('-in return');
+    return onSnapshot(q, (list) => {
       this.normalGames = [];
-      console.log('normal Games in subGameList:', this.normalGames);
-      console.log('onSnapshot aufgerufen - Liste:')
       list.forEach((element) => {
-        console.log('... Listenelement:', element);
-        console.log('normal Games bei aktivem Push:', this.normalGames);
         this.normalGames.push(this.setGameObject(element.data(), element.id));
       });
       list.docChanges().forEach((change) => {
@@ -117,13 +105,9 @@ export class GameComponent implements OnInit {
         }
       });
     });
-    console.log('kurz vor return');
-    return snappy;
   }
 
   setGameObject(obj: any, id: string) {
-    console.log('setGameObject wird jetzt auferufen');
-
     return {
       id: id,
       currentPlayer: obj.currentPlayer,
@@ -134,31 +118,28 @@ export class GameComponent implements OnInit {
   }
 
   getGamesRef() {
-    console.log('collection games:', collection(this.firestore, 'games'));
     return collection(this.firestore, 'games');
   }
 
   ngOnInit(): void {
-    console.log('On Init');
-    this.newGame(0);
+    this.newGame();
 
-    // this.route.params.subscribe((params) => {
-    //   console.log(params);
-    // });
+    this.route.params.subscribe((params) => {
+      this.currentGameId = params['id'];
+    });
   }
 
 
-  newGame(gameNumber: number) {
-    console.log('New game aus game-component.ts');
-    this.game = new Game(gameNumber);
+  newGame() {
+    this.game = new Game();
+    console.log('NEUES SPIEL ERSTELLT von KOMPONENTE');
     this.addGame(this.game.toJson());
-    this.gameNumber = gameNumber;
+    
   }
 
   takeCard() {
     if (!this.pickCardAnimation) {
       this.currentCard = this.game.stack.pop();
-      console.log(this.currentCard);
       this.pickCardAnimation = true;
 
       if (this.game.players.length > 0) {
@@ -187,8 +168,6 @@ export class GameComponent implements OnInit {
   }
 
   saveGame() {
-    console.log('Save Game');
-
     this.updateGame(this.game);
   }
 }
