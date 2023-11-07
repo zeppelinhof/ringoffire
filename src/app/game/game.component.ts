@@ -36,11 +36,11 @@ export class GameComponent implements OnInit {
   }
 
   async updateGame(element) {
-    console.log('updateGame wird jetzt aufgerufen');
-    debugger
-    console.log('normalGames:', this.normalGames);
+    console.log('updateGame wird jetzt aufgerufen');    
+    console.log('normalGames in updateGame:', this.normalGames);
     let docRef = this.getSingleDocRef("games", this.normalGames[this.gameNumber]['id']);
-    if (this.game.currentPlayer) {
+    debugger
+    if (true) {
       await updateDoc(docRef, this.getCleanJson(element)).catch(
         (err) => { console.error(err); }
       );
@@ -94,13 +94,11 @@ export class GameComponent implements OnInit {
     console.log('Query q:', q);
     const snappy = await onSnapshot(q, (list) => {
       console.log('-in return');
-      debugger
       this.normalGames = [];
       console.log('normal Games in subGameList:', this.normalGames);
       console.log('onSnapshot aufgerufen - Liste:')
       list.forEach((element) => {
         console.log('... Listenelement:', element);
-        debugger
         console.log('normal Games bei aktivem Push:', this.normalGames);
         this.normalGames.push(this.setGameObject(element.data(), element.id));
       });
@@ -155,7 +153,6 @@ export class GameComponent implements OnInit {
     this.game = new Game(gameNumber);
     this.addGame(this.game.toJson());
     this.gameNumber = gameNumber;
-    this.saveGame();
   }
 
   takeCard() {
