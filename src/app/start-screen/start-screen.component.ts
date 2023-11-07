@@ -18,8 +18,9 @@ export class StartScreenComponent implements OnInit{
     
   }
 
-  newGame(){
-    let game = new Game();
+  newGame(gameNumber:number){
+    // console.log(`newGame von startscreen (gameNumber:${gameNumber})`);
+    // let game = new Game(gameNumber);
 
     this.router.navigateByUrl('/game');
   }

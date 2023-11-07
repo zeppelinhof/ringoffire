@@ -1,10 +1,14 @@
 export class Game {
+    public id: string;
     public players: string[] = [];
     public stack: string[] = [];
     public playedCards: string[] = [];
     public currentPlayer: number = 0;
+    public currentGameNumber: number;
 
-    constructor() {
+
+    constructor(gameNumber) {
+        console.log('Game Constructor aus game.ts');
         for (let i = 0; i < 10; i++) {
             this.stack.push('blue_' + i + '_large.png');
             this.stack.push('green_' + i + '_large.png');
@@ -12,10 +16,10 @@ export class Game {
             this.stack.push('yellow_' + i + '_large.png');
         }
         shuffle(this.stack);
+        this.currentGameNumber = gameNumber;
     }
 
     toJson() {
-        console.log(this.players);
         return {
             players: this.players,
             stack: this.stack,
