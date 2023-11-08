@@ -12,12 +12,10 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
-  pickCardAnimation = false;
-  currentCard: string = '';
   game: Game;
   normalGames = [];
   unsubGames;
-  currentGameId:string;
+  currentGameId: string;
 
   // items$;
   // items;
@@ -37,12 +35,11 @@ export class GameComponent implements OnInit {
 
   async updateGame(element) {
     let docRef = this.getSingleDocRef("games", this.currentGameId);
-    debugger
-    if (true) {
-      await updateDoc(docRef, this.getCleanJson(element)).catch(
-        (err) => { console.error(err); }
-      );
-    }
+    console.log('docRef ist:', docRef);
+    await updateDoc(docRef, this.getCleanJson(element)).catch(
+      (err) => { console.error(err); }
+    );
+
 
   }
 
@@ -56,7 +53,9 @@ export class GameComponent implements OnInit {
       currentPlayer: game.currentPlayer,
       playedCards: game.playedCards,
       players: game.players,
-      stack: game.stack
+      stack: game.stack,
+      pickCardAnimation: game.pickCardAnimation,
+      currentCard: game.currentCard
     }
   }
 
@@ -132,25 +131,25 @@ export class GameComponent implements OnInit {
 
   newGame() {
     this.game = new Game();
-    console.log('NEUES SPIEL ERSTELLT von KOMPONENTE');
     this.addGame(this.game.toJson());
-    
+
   }
 
   takeCard() {
-    if (!this.pickCardAnimation) {
-      this.currentCard = this.game.stack.pop();
-      this.pickCardAnimation = true;
+    if (!this.game.pickCardAnimation) {
+      this.game.currentCard = this.game.stack.pop();
+      this.game.pickCardAnimation = true;
 
       if (this.game.players.length > 0) {
         this.game.currentPlayer++;
         this.game.currentPlayer = this.game.currentPlayer % this.game.players.length;
+        this.saveGame();
       }
 
 
       setTimeout(() => {
-        this.game.playedCards.push(this.currentCard);
-        this.pickCardAnimation = false;
+        this.game.playedCards.push(this.game.currentCard);
+        this.game.pickCardAnimation = false;
         this.saveGame();
       }, 1000);
     }

@@ -40,6 +40,7 @@ import { provideFirestore,getFirestore } from '@angular/fire/firestore';
     BrowserAnimationsModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore())
+    // AngularFireModule.initializeApp(environment.firebase)    -   falls injection error (2 obere Zeilen entfernen) 
   ],
   providers: [],
   bootstrap: [AppComponent]
